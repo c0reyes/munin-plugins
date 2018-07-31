@@ -1,0 +1,82 @@
+#!/usr/bin/python
+
+import urllib3
+import base64
+import string
+import sys
+import os
+
+def getInfo(ports):
+	host = os.environ["host"]
+	username = os.environ["username"]
+	password = os.environ["password"]
+
+	url='/html/status/ethinfo.asp'
+
+	http = urllib3.HTTPConnectionPool(host)
+	
+	# Login
+	r1 = http.request('GET','/asp/GetRandCount.asp')
+	
+	## Parameters
+	fields = {'': 'x.X_HW_Token={}'.format(r1.data.decode('utf-8-sig'))}
+	
+	## Headers
+	password64 = base64.b64encode(str.encode(password)).decode('ascii')
+	cookie = 'Cookie=UserName:{}:PassWord:{}:Language:english:id=-1'.format(username, password64)
+	header = {'Referer': 'http://{}/'.format(host), 'Cookie' : cookie}
+	
+	r = http.request('POST', '/login.cgi', headers=header, fields=fields)
+	header2 = {'Cookie': r.headers['set-cookie']}
+
+	# Random page
+	http.request('GET', '/frame.asp', headers=header2)
+
+	# Data
+	r2 = http.request('GET', url, headers=header2)	
+	data = r2.data.decode('UTF-8').split('\r\n')
+
+	eths = []
+	for d in data:
+		if "var userEthInfos" in d:
+			d = d.replace("var userEthInfos = new Array(","").replace(",null);","").replace(")","").replace("\"","")
+			eths = d.split("new LANStats(")
+	
+	dig = 1
+	for eth in eths:
+		if(eth):
+			tmp = eth.split(",")
+			print("multigraph LAN{}".format(dig))
+			print("up.value {}".format(tmp[2]))
+			print("down.value {}".format(tmp[4]))
+			dig = dig + 1
+
+def printInfo(port):
+	p = """multigraph {0}
+graph_order down up
+graph_title {0} traffic
+graph_args --base 1000 
+graph_vlabel bits in (-) / out (+)
+graph_category network
+down.label received
+down.type DERIVE
+down.graph no
+down.cdef down,8,*
+down.draw AREA
+up.label bps
+up.type DERIVE
+up.negative down
+up.cdef up,8,*
+up.draw AREA
+""".format(port)
+
+	print(p)
+
+ports = ["LAN1", "LAN2", "LAN3", "LAN4"]
+
+if len(sys.argv) > 1 and sys.argv[1] == 'config':
+	for port in ports:
+		printInfo(port)
+else:
+	getInfo()
+

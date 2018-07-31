@@ -14,7 +14,9 @@ This plugins tested with Huawei HG8245H. This make graph for each ethernet conne
 
 - plugin-conf.d/munin-node
 
-	[huawei_traffic*]
-	env.host 10.0.0.1
-	env.username user
-	env.password pass
+```
+[huawei_traffic*]
+env.host 10.0.0.1
+env.username user
+env.password pass
+```

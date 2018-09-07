@@ -1,0 +1,44 @@
+#!/usr/bin/python
+
+import sys
+import os
+import telnetlib
+
+def getLoad():
+	host = os.environ["host"]
+	username = os.environ["username"]
+	password = os.environ["password"]
+
+	tn = telnetlib.Telnet(host)
+
+	tn.read_until("login: ")
+	tn.write(username + "\n")
+	
+	tn.read_until("Password: ")
+	tn.write(password + "\n")
+	
+	tn.write("uptime\n")
+	tn.write("exit\n")
+	
+	out = tn.read_all()
+	
+	for line in out.split("\n"):
+	        if "load" in line:
+	                o = line.split(" ")
+	                print("load.value {}".format(o[8].replace(",","")))
+
+def printInfo():
+	p = """graph_title Load average
+graph_category system
+graph_scale no
+graph_vlabel load
+graph_args --base 1000 -l 0
+load.label load
+load.info 5 minute load average """
+
+	print(p)
+
+if len(sys.argv) > 1 and sys.argv[1] == 'config':
+	printInfo()
+else:
+	getLoad()

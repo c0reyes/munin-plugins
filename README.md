@@ -20,3 +20,22 @@ env.host 10.0.0.1
 env.username user
 env.password pass
 ```
+
+# ddwrt_load
+
+This plugins get the load of dd-wrt micro. dd-wrt micro doesn't have snmpd server so with this plugin you can access with telnet and get the information.
+
+## Example
+
+![alt text](screenshots/ddwrt_load-day.png?raw=true "ddwrt load")
+
+## Settings
+
+- plugin-conf.d/munin-node
+
+```
+[ddwrt_load]
+env.host 10.0.0.1
+env.username user
+env.password pass
+```

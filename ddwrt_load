@@ -23,9 +23,9 @@ def getLoad():
 	out = tn.read_all()
 	
 	for line in out.split("\n"):
-	        if "load" in line:
-	                o = line.split(" ")
-	                print("load.value {}".format(o[8].replace(",","")))
+	    if "load" in line:
+			m = re.search('(?<=average: )\d+\.\d+',line)
+	        print("load.value {}".format(m.group(0)))
 
 def printInfo():
 	p = """graph_title Load average
